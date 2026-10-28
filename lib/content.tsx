@@ -398,45 +398,98 @@ export const CLIENTS = [
 
 /* ---------- mensen ---------- */
 
+export const TEAM_INTRO =
+  "Ons team bestaat uit enthousiaste en bevlogen mensen die met plezier hun werk doen. Onze advocaten kennen het klappen van de zweep en weten wat er speelt bij hun cliënten waardoor zij advies op maat geven. Onmisbaar bij hun werk is een sterk team van ondersteuners, die zorgen dat alle processen op rolletjes lopen.";
+
+/** Roles as on hocker.nl/ons-team, in filter order. Practice areas use the specialism id. */
+export const TEAM_ROLES = [
+  { id: "kantoordirecteur", t: "Kantoordirecteur" },
+  { id: "ondernemingsrecht", t: "Ondernemingsrecht" },
+  { id: "arbeidsrecht", t: "Arbeidsrecht" },
+  { id: "ie-ict", t: "IE/ICT" },
+  { id: "media-marketing", t: "Media & Marketing" },
+  { id: "algemeen-belang", t: "Algemeen belang en collectieve acties" },
+  { id: "geschillenbeslechting", t: "Geschillenbeslechting" },
+  { id: "ondersteuning", t: "Ondersteuning" },
+] as const;
+
+export type TeamRole = (typeof TEAM_ROLES)[number]["id"];
+
+export const teamRoleLabel = (id: TeamRole) => TEAM_ROLES.find((r) => r.id === id)!.t;
+
+export const isSpecRole = (role: TeamRole): role is SpecKey => role in SPEC;
+
 export type Person = {
   id: string;
   n: string | null;
   img: string;
+  /** First practice area, used where a single specialism is needed. */
   spec?: SpecKey;
+  roles: TeamRole[];
   bio?: string[];
   tags?: string[];
   news?: string[];
 };
 
+const person = (id: string, n: string, roles: TeamRole[], extra?: Pick<Person, "bio" | "tags" | "news">): Person => ({
+  id,
+  n,
+  img: asset(`img/team/${id}.jpg`),
+  roles,
+  spec: roles.find(isSpecRole),
+  ...extra,
+});
+
 export const PEOPLE: Person[] = [
-  {
-    id: "marijn-kingma",
-    n: "Marijn Kingma",
-    img: asset("img/expert-marijn-kingma.jpg"),
-    spec: "media-marketing",
+  person("ilse-van-aert", "Ilse van Aert", ["arbeidsrecht"]),
+  person("marnix-van-den-bergh", "Marnix van den Bergh", ["ondernemingsrecht"]),
+  person("laurine-van-den-bos", "Laurine van den Bos", ["ondernemingsrecht", "geschillenbeslechting"]),
+  person("joran-buijck", "Joran Buijck", ["ondernemingsrecht", "geschillenbeslechting", "algemeen-belang"]),
+  person("herman-doeleman", "Herman Doeleman", ["geschillenbeslechting", "ondernemingsrecht"]),
+  person("jytte-elfferich", "Jytte Elfferich", ["ie-ict", "media-marketing"]),
+  person("rick-geerars", "Rick Geerars", ["ondernemingsrecht", "geschillenbeslechting", "algemeen-belang"]),
+  person("hannah-vera-hess", "Hannah Vera Hess", ["arbeidsrecht"]),
+  person("jasper-van-hulst", "Jasper van Hulst", ["arbeidsrecht"]),
+  person("mick-hurks", "Mick Hurks", ["arbeidsrecht"]),
+  person("paul-jongen", "Paul Jongen", ["ondernemingsrecht"]),
+  person("suzanne-van-ketel", "Suzanne van Ketel", ["arbeidsrecht", "geschillenbeslechting"]),
+  person("marijn-kingma", "Marijn Kingma", ["ie-ict", "media-marketing", "algemeen-belang"], {
     bio: [
       "Volgens Legal 500 een expert in het auteursrecht in de literaire, muziek- en audiovisuele sector.",
       "Schreef onder meer de editorial over AI-deals in de muziekindustrie.",
     ],
     tags: ["Auteursrecht", "Muziek en entertainment", "Literair en audiovisueel"],
     news: ["ai-deals-muziekindustrie"],
-  },
-  {
-    id: "joep-meddens",
-    n: "Joep Meddens",
-    img: asset("img/expert-joep-meddens.jpg"),
-    spec: "media-marketing",
+  }),
+  person("anna-kranenburg", "Anna Kranenburg", ["arbeidsrecht"]),
+  person("joep-meddens", "Joep Meddens", ["ie-ict", "media-marketing"], {
     bio: ["Volgens Legal 500 bedreven in reclamezaken: van het clearen van campagnes tot procedures bij de Reclamecodecommissie."],
     tags: ["Reclamerecht", "Clearen van campagnes", "Reclamecodecommissie"],
-  },
-  { id: "jytte-elfferich", n: "Jytte Elfferich", img: asset("img/expert-jytte-elfferich.jpg"), spec: "media-marketing" },
-  { id: "jolien-van-woudenberg", n: "Jolien van Woudenberg", img: asset("img/expert-jolien-van-woudenberg.jpg"), spec: "media-marketing" },
-  { id: "janneke-popma", n: "Janneke Popma", img: asset("img/expert-janneke-popma.jpg"), spec: "media-marketing" },
-  ...[1, 2, 3, 4, 5, 6, 7].map((i) => ({ id: `collega-${i}`, n: null, img: asset(`img/team-collega-${i}.jpg`) })),
+  }),
+  person("jordy-mesman", "Jordy Mesman", ["arbeidsrecht"]),
+  person("sterre-nijkamp", "Sterre Nijkamp", ["ondernemingsrecht"]),
+  person("muriel-nolet", "Muriël Nolet", ["arbeidsrecht"]),
+  person("janneke-popma", "Janneke Popma", ["ie-ict", "media-marketing"]),
+  person("juliette-van-rij", "Juliëtte van Rij", ["arbeidsrecht"]),
+  person("evert-sarolea", "Evert Sarolea", ["ondernemingsrecht", "algemeen-belang"]),
+  person("laura-schalk", "Laura Schalk", ["ondernemingsrecht"]),
+  person("barbara-scheurwater", "Barbara Scheurwater", ["ie-ict", "media-marketing"]),
+  person("debby-steur", "Debby Steur", ["arbeidsrecht"]),
+  person("diederik-tuyll-serooskerken", "Diederik van Tuyll van Serooskerken", ["ondernemingsrecht"]),
+  person("marc-wolters", "Marc Wolters", ["ondernemingsrecht", "algemeen-belang"]),
+  person("jolien-van-woudenberg", "Jolien van Woudenberg", ["ondernemingsrecht", "media-marketing", "algemeen-belang", "geschillenbeslechting"]),
+  person("edwin-knoth", "Edwin Knoth", ["kantoordirecteur"]),
+  person("martine-beekers-weij", "Martine Beekers-Weij", ["ondersteuning"]),
+  person("jiska-van-den-berg", "Jiska van den Berg", ["ondersteuning"]),
+  person("cindy-danielson-roubos", "Cindy Danielson-Roubos", ["ondersteuning"]),
+  person("jolanda-jozen-van-der-niet", "Jolanda Jozen-van der Niet", ["ondersteuning"]),
+  person("joan-moes-schoemaker", "Joan Moes-Schoenmaker", ["ondersteuning"]),
+  person("chantal-oudt", "Chantal Oudt", ["ondersteuning"]),
 ];
 
 export const personById = (id: string) => PEOPLE.find((p) => p.id === id);
-export const peopleIn = (spec: SpecKey) => PEOPLE.filter((p) => p.spec === spec);
+export const personSpecs = (p: Person) => p.roles.filter(isSpecRole);
+export const peopleIn = (spec: SpecKey) => PEOPLE.filter((p) => p.roles.includes(spec));
 
 /* ---------- infopagina's ---------- */
 

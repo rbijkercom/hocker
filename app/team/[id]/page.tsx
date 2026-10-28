@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Fragment } from "react";
 import { CtaButton } from "@/components/CtaButton";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import { Crumbs, PersonLink } from "@/components/ui";
-import { EMAIL, NEWS, PEOPLE, PHONE, PHONE_HREF, SPEC, type Person } from "@/lib/content";
+import { EMAIL, NEWS, PEOPLE, PHONE, PHONE_HREF, SPEC, isSpecRole, personSpecs, teamRoleLabel, type Person } from "@/lib/content";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -29,8 +30,9 @@ export default async function ProfilePage({ params }: Props) {
   const next = PEOPLE[(i + 1) % L];
   const name = p.n ?? "Naam volgt";
   const first = p.n?.split(" ")[0];
-  const s = p.spec ? SPEC[p.spec] : null;
-  const colleagues = PEOPLE.filter((x) => x.n && x.id !== p.id && (!p.spec || x.spec === p.spec)).slice(0, 5);
+  const specs = personSpecs(p);
+  const duties = p.roles.filter((r) => !isSpecRole(r));
+  const colleagues = PEOPLE.filter((x) => x.n && x.id !== p.id && x.roles.some((r) => p.roles.includes(r))).slice(0, 5);
   const articles = NEWS.filter((n) => p.news?.includes(n.slug));
 
   return (
@@ -42,12 +44,12 @@ export default async function ProfilePage({ params }: Props) {
             <img src={p.img} alt={name} />
           </div>
           <div className="pbody">
-            {s ? (
-              <Link className="label" href={`/specialismen/${p.spec}`}>
-                {s.t}
+            {specs[0] ? (
+              <Link className="label" href={`/specialismen/${specs[0]}`}>
+                {SPEC[specs[0]].t}
               </Link>
             ) : (
-              <span className="label">Team</span>
+              <span className="label">{duties[0] ? teamRoleLabel(duties[0]) : "Team"}</span>
             )}
             <h1>{name}</h1>
             {p.bio ? (
@@ -79,14 +81,25 @@ export default async function ProfilePage({ params }: Props) {
               </a>
             </div>
             <dl className="pfacts">
-              {s && (
+              {specs.length > 0 && (
                 <>
-                  <dt>Specialisme</dt>
+                  <dt>{specs.length > 1 ? "Specialismen" : "Specialisme"}</dt>
                   <dd>
-                    <Link href={`/specialismen/${p.spec}`}>{s.t}</Link>
+                    {specs.map((k, i) => (
+                      <span key={k}>
+                        {i > 0 && ", "}
+                        <Link href={`/specialismen/${k}`}>{SPEC[k].t}</Link>
+                      </span>
+                    ))}
                   </dd>
                 </>
               )}
+              {duties.map((role) => (
+                <Fragment key={role}>
+                  <dt>Functie</dt>
+                  <dd>{teamRoleLabel(role)}</dd>
+                </Fragment>
+              ))}
               <dt>Kantoor</dt>
               <dd>Apollolaan 153, Amsterdam</dd>
               <dt>Telefoon</dt>

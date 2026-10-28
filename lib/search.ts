@@ -1,4 +1,4 @@
-import { NEWS, PEOPLE, SPEC, SPEC_ORDER, type Block, type SpecKey } from "./content";
+import { NEWS, PEOPLE, SPEC, SPEC_ORDER, personSpecs, teamRoleLabel, type Block, type SpecKey } from "./content";
 import { norm, toText } from "./text";
 
 export type ResultType = "Advocaat" | "Specialisme" | "Expertise" | "Nieuws" | "Pagina";
@@ -18,14 +18,18 @@ const blockText = (b: Block) =>
   "p" in b ? toText(b.p) : "lead" in b ? b.lead : "h" in b ? b.h : b.l.map(toText).join(" ");
 
 const IDX: Entry[] = [
-  ...PEOPLE.filter((p) => p.n && p.spec).map((p) => ({
-    t: p.n!,
-    type: "Advocaat" as const,
-    sub: SPEC[p.spec!].t,
-    href: `/team/${p.id}`,
-    img: p.img,
-    kw: [...(p.tags ?? []), ...(p.bio ?? []), SPEC[p.spec!].t].join(" "),
-  })),
+  ...PEOPLE.filter((p) => p.n).map((p) => {
+    const specs = personSpecs(p);
+    const labels = p.roles.map(teamRoleLabel);
+    return {
+      t: p.n!,
+      type: (specs.length ? "Advocaat" : "Pagina") as ResultType,
+      sub: labels.join(", "),
+      href: `/team/${p.id}`,
+      img: p.img,
+      kw: [...(p.tags ?? []), ...(p.bio ?? []), ...labels].join(" "),
+    };
+  }),
   ...SPEC_ORDER.map((k) => ({
     t: SPEC[k].t,
     type: "Specialisme" as const,
